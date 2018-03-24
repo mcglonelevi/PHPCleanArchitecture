@@ -1,28 +1,11 @@
 <?php
 
 require_once '../vendor/autoload.php';
+require_once 'bootstrap.php';
 
-use Medoo\Medoo;
-use App\Repositories\TodoRepository;
-use App\Util\DIContainer;
-use App\Actions\Todo\IndexAction;
+use App\Controllers\TodoController;
+use App\Entities\Todo;
 
-$container = DIContainer::getInstance();
+$todoController = new TodoController();
 
-$container->set('DB', function () {
-    return new Medoo([
-        'database_type' => 'mysql',
-        'database_name' => 'todo_app',
-        'server' => 'localhost',
-        'username' => 'root',
-        'password' => ''
-    ]);
-});
-
-$container->set('TodoRepository', function () use ($container) {
-    return new TodoRepository($container->get('DB'));
-});
-
-$index = new IndexAction;
-
-print_r($index->execute());
+print_r($todoController->show(2));

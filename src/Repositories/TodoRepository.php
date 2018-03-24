@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Entities\Todo;
+use Exception;
 
 class TodoRepository {
     public function __construct($database) {
@@ -13,8 +14,13 @@ class TodoRepository {
         return $this->getWhere([]);
     }
 
-    public function getById(int $id) : Todo {
+    public function getById(int $id) : ?Todo {
         $row = $this->database->get('todos', '*', compact('id'));
+
+        if (!$row)
+        {
+            return null;
+        }
 
         $todo = new Todo;
         $todo->fill($row);
@@ -32,29 +38,23 @@ class TodoRepository {
     }
 
     public function save(Todo $todo) : Todo {
-        $upsert = [
-            'description' => $todo->description
-        ];
+        if (!$todo->validate()) {
+            throw new Exception('Cannot insert todo into database.  Object failed validation.');
+        }
 
         if ($todo->id) {
-            $this->database->update('todos', $upsert, [
+            $this->database->update('todos', $todo->toArray(), [
                 'id' => $todo->id
             ]);
         } else {
-            $this->database->insert('todos', $upsert);
+            $this->database->insert('todos', $todo->toArray());
             $todo->id = $this->database->id();
         }
 
         return $todo;
     }
 
-    public function delete(array $where) : bool {
-        try {
-            $this->database->delete('todos', $where);
-        } catch (Exception $e) {
-            return false;
-        }
-
-        return true;
+    public function delete(array $where) : int {
+        return $this->database->delete('todos', $where)->rowCount();
     }
 }
