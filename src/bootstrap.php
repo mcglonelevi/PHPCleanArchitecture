@@ -22,3 +22,9 @@ $container->set('DB', function () {
 $container->set('TodoRepository', function () use ($container) {
     return new TodoRepository($container->get('DB'));
 });
+
+$container->set('Twig', function () use ($container) {
+    $loader = new Twig_Loader_Filesystem('Templates');
+    $twig = new Twig_Environment($loader, []);
+    return $twig;
+});
