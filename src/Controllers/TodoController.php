@@ -57,6 +57,7 @@ class TodoController {
 
     public function update(int $id, Todo $todo)
     {
+        $error = null;
         $todo->id = $id; // set to id to stop store action
 
         try {

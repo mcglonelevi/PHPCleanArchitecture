@@ -12,4 +12,13 @@ class Response
         $this->data = $data;
         $this->error = $error;
     }
+
+    public function toJSON()
+    {
+        if ($this->error)
+        {
+            return json_encode(['error' => $this->error], JSON_PRETTY_PRINT);
+        }
+        return json_encode($this->data, JSON_PRETTY_PRINT);
+    }
 }
