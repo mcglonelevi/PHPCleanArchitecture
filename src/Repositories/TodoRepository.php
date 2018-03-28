@@ -6,15 +6,18 @@ use App\Entities\Todo;
 use Exception;
 
 class TodoRepository {
-    public function __construct(\Medoo\Medoo $database) {
+    public function __construct(\Medoo\Medoo $database)
+    {
         $this->database = $database;
     }
 
-    public function getAll() : array {
+    public function getAll() : array
+    {
         return $this->getWhere([]);
     }
 
-    public function getById(int $id) : ?Todo {
+    public function getById(int $id) : ?Todo
+    {
         $row = $this->database->get('todos', '*', compact('id'));
 
         if (!$row)
@@ -27,7 +30,8 @@ class TodoRepository {
         return $todo;
     }
 
-    public function getWhere(array $properties) : array {
+    public function getWhere(array $properties) : array
+    {
         $results = $this->database->select('todos', '*', $properties);
 
         return array_map(function ($row) {
@@ -37,7 +41,8 @@ class TodoRepository {
         }, $results);
     }
 
-    public function save(Todo $todo) : Todo {
+    public function save(Todo $todo) : Todo
+    {
         if (!$todo->validate()) {
             throw new Exception('Cannot insert todo into database.  Object failed validation.');
         }
@@ -54,7 +59,8 @@ class TodoRepository {
         return $todo;
     }
 
-    public function delete(array $where) : int {
+    public function delete(array $where) : int
+    {
         return $this->database->delete('todos', $where)->rowCount();
     }
 }

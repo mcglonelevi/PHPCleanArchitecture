@@ -15,8 +15,7 @@ class Response
 
     public function toJSON()
     {
-        if ($this->error)
-        {
+        if ($this->error) {
             return json_encode(['error' => $this->error], JSON_PRETTY_PRINT);
         }
         return json_encode($this->data, JSON_PRETTY_PRINT);
