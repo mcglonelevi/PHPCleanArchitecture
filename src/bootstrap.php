@@ -1,15 +1,38 @@
 <?php
 
 use Medoo\Medoo;
-use App\Util\DIContainer;
 use App\Repositories\TodoRepository;
 
+use Illuminate\Container\Container;
+use Illuminate\Events\Dispatcher;
+use Illuminate\Http\Request;
+use Illuminate\Routing\Redirector;
+use Illuminate\Routing\Router;
+use Illuminate\Routing\UrlGenerator;
+
+/**
+ * Load Environment Vars
+ */
 $dotenv = new Dotenv\Dotenv(__DIR__ . '/../');
 $dotenv->load();
 
-$container = DIContainer::getInstance();
+/**
+ * Setup Container and dispatcher
+ */
+$container = new Container;
+$events = new Dispatcher($container);
+$router = new Router($events, $container);
+$request = Request::capture();
+$redirect = new Redirector(new UrlGenerator($router->getRoutes(), $request));
 
-$container->set('DB', function () {
+/**
+ * Setup Dependency Injection
+ */
+$container->instance('Illuminate\Http\Request', $request);
+
+$container->instance('Illuminate\Container\Container', $container);
+
+$container->singleton('Medoo\Medoo', function ($container) {
     return new Medoo([
         'database_type' => getenv('DB_TYPE'),
         'database_name' => getenv('DB_NAME'),
@@ -19,11 +42,11 @@ $container->set('DB', function () {
     ]);
 });
 
-$container->set('TodoRepository', function () use ($container) {
-    return new TodoRepository($container->get('DB'));
+$container->singleton('TodoRepository', function ($container) {
+    return new TodoRepository($container->make('Medoo\Medoo'));
 });
 
-$container->set('Twig', function () use ($container) {
+$container->singleton('Twig', function ($container) {
     $loader = new Twig_Loader_Filesystem('Templates');
     $twig = new Twig_Environment($loader, []);
     return $twig;

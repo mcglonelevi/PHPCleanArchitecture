@@ -2,20 +2,28 @@
 
 namespace App\Actions\Todo;
 
-use App\Util\DIContainer;
+use App\Repositories\TodoRepository;
 use App\Entities\Todo;
+use App\Util\Response;
 
 class CreateAction {
-    public function __construct(Todo $todo)
+    public function __construct(TodoRepository $todoRepository)
     {
-        $container = DIContainer::getInstance();
-        $this->todoRepository = $container->get('TodoRepository');
-
-        $this->todo = $todo;
+        $this->todoRepository = $todoRepository;
     }
 
-    public function execute() : Todo
+    public function execute(Todo $todo) : Response
     {
-        return $this->todoRepository->save($this->todo);
+        $todo->id = null; // Set to null to stop updates
+        $error = null;
+
+        try {
+            $todo = $this->todoRepository->save($todo);
+        } catch (Exception $e) {
+            $todo = null;
+            $error = $e->getMessage();
+        }
+
+        return new Response(compact('todo'), $error);
     }
 }

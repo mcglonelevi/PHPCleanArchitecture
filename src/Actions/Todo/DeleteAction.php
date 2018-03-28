@@ -2,20 +2,32 @@
 
 namespace App\Actions\Todo;
 
-use App\Util\DIContainer;
-use App\Util\Reponse;
+use App\Repositories\TodoRepository;
+use App\Util\Response;
 
 class DeleteAction {
-    public function __construct($id)
+    public function __construct(TodoRepository $todoRepository)
     {
-        $container = DIContainer::getInstance();
-        $this->todoRepository = $container->get('TodoRepository');
-
-        $this->id = $id;
+        $this->todoRepository = $todoRepository;
     }
 
-    public function execute() : int
+    public function execute(int $id) : Response
     {
-        return $this->todoRepository->delete(['id' => $this->id]);
+        $error = null;
+
+        try {
+            $numRows = $this->todoRepository->delete(['id' => $id]);
+            $success = true;
+        } catch (Exception $e) {
+            $error = $e->getMessage();
+            $success = false;
+        }
+
+        if (!$error && $numRows == 0) {
+            $success = false;
+            $error = 'Could not find Todo to delete.';
+        }
+
+        return new Response(compact('success'), $error);
     }
 }

@@ -2,43 +2,38 @@
 
 namespace App\Presenters\API;
 
-use App\Controllers\TodoController;
-use Illuminate\Http\Request;
-use App\Entities\Todo;
+use App\Util\Response;
 
 class TodoPresenter {
     public function __construct()
     {
         header('Content-Type: application/json');
+        $this->wrap = preg_match('/(text\/html|\*)/', getallheaders()['Accept']);
     }
 
-    public function index()
+    public function index(Response $response)
     {
-        return (new TodoController)->index()->toJSON();
+        return ($this->wrap ? '<pre>' . $response->toJSON() . '</pre>' : $response->toJSON());
     }
 
-    public function show($id)
+    public function show(Response $response)
     {
-        return (new TodoController)->show($id)->toJSON();
+        return ($this->wrap ? '<pre>' . $response->toJSON() . '</pre>' : $response->toJSON());
     }
 
-    public function store(Request $request)
+    public function store(Response $response)
     {
-        $todo = new Todo;
-        $todo->fill($request->input());
-        return (new TodoController)->store($todo)->toJSON();
+        return ($this->wrap ? '<pre>' . $response->toJSON() . '</pre>' : $response->toJSON());
     }
 
-    public function update(Request $request, $id)
+    public function update(Response $response)
     {
-        $todo = new Todo;
-        $todo->fill($request->input());
-        return (new TodoController)->update($id, $todo)->toJSON();
+        return ($this->wrap ? '<pre>' . $response->toJSON() . '</pre>' : $response->toJSON());
     }
 
-    public function delete($id)
+    public function delete(Response $response)
     {
-        return (new TodoController)->delete($id)->toJSON();
+        return ($this->wrap ? '<pre>' . $response->toJSON() . '</pre>' : $response->toJSON());
     }
 
 }

@@ -2,27 +2,29 @@
 
 namespace App\Actions\Todo;
 
-use App\Util\DIContainer;
+
 use App\Entities\Todo;
 use Exception;
+use App\Util\Response;
+use App\Repositories\TodoRepository;
 
 class ShowAction {
-    public function __construct(int $id)
+    public function __construct(TodoRepository $todoRepository)
     {
-        $container = DIContainer::getInstance();
-        $this->todoRepository = $container->get('TodoRepository');
-
-        $this->id = $id;
+        $this->todoRepository = $todoRepository;
     }
 
-    public function execute() : Todo
+    public function execute(int $id) : Response
     {
-        $todo = $this->todoRepository->getById($this->id);
+        $error = null;
 
-        if (!$todo) {
-            throw new Exception('Todo not found!');
+        try {
+            $todo = $this->todoRepository->getById($id);
+        } catch (Exception $e) {
+            $todo = null;
+            $error = $e->getMessage();
         }
 
-        return $todo;
+        return new Response(compact('todo'), $error);
     }
 }

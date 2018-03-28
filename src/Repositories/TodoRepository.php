@@ -6,7 +6,7 @@ use App\Entities\Todo;
 use Exception;
 
 class TodoRepository {
-    public function __construct($database) {
+    public function __construct(\Medoo\Medoo $database) {
         $this->database = $database;
     }
 

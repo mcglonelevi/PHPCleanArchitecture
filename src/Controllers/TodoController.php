@@ -2,91 +2,50 @@
 
 namespace App\Controllers;
 
+use Illuminate\Http\Request;
+
 use App\Entities\Todo;
-use App\Util\Response;
 use App\Actions\Todo\CreateAction;
 use App\Actions\Todo\IndexAction;
 use App\Actions\Todo\DeleteAction;
 use App\Actions\Todo\ShowAction;
 use App\Actions\Todo\UpdateAction;
-use Exception;
+use App\Presenters\API\TodoPresenter;
 
 class TodoController {
-    public function index()
+    public function index(TodoPresenter $presenter, IndexAction $indexAction)
     {
-        $error = null;
-
-        try {
-            $todos = (new IndexAction)->execute();
-        } catch (Exception $e) {
-            $todos = null;
-            $error = $e->getMessage();
-        }
-
-        return new Response(compact('todos'), $error);
+        $response = $indexAction->execute();
+        return $presenter->index($response);
     }
 
-    public function show(int $id)
+    public function show(TodoPresenter $presenter, ShowAction $showAction, int $id)
     {
-        $error = null;
-
-        try {
-            $todo = (new ShowAction($id))->execute();
-        } catch (Exception $e) {
-            $todo = null;
-            $error = $e->getMessage();
-        }
-
-        return new Response(compact('todo'), $error);
+        $response = $showAction->execute($id);
+        return $presenter->show($response);
     }
 
-    public function store(Todo $todo)
+    public function store(TodoPresenter $presenter, Request $request, CreateAction $createAction)
     {
-        $todo->id = null; // Set to null to stop updates
-        $error = null;
+        $todo = new Todo;
+        $todo->fill($request->input());
 
-        try {
-            $todo = (new CreateAction($todo))->execute();
-        } catch (Exception $e) {
-            $todo = null;
-            $error = $e->getMessage();
-        }
-
-        return new Response(compact('todo'), $error);
+        $response = $createAction->execute($todo);
+        return $presenter->store($response);
     }
 
-    public function update(int $id, Todo $todo)
+    public function update(TodoPresenter $presenter, Request $request, UpdateAction $updateAction, int $id)
     {
-        $error = null;
-        $todo->id = $id; // set to id to stop store action
+        $todo = new Todo;
+        $todo->fill($request->input());
 
-        try {
-            $todo = (new UpdateAction($todo))->execute();
-        } catch (Exception $e) {
-            $todo = null;
-            $error = $e->getMessage();
-        }
-
-        return new Response(compact('todo'), $error);
+        $response = $updateAction->execute($todo, $id);
+        return $presenter->update($response);
     }
 
-    public function delete(int $id)
+    public function delete(TodoPresenter $presenter, DeleteAction $deleteAction, int $id)
     {
-        $error = null;
-
-        try {
-            $numRows = (new DeleteAction($id))->execute();
-            $success = true;
-        } catch (Exception $e) {
-            $error = $e->getMessage();
-            $success = false;
-        }
-
-        if (!$error && $numRows == 0) {
-            $success = false;
-            $error = 'Could not find Todo to delete.';
-        }
-
-        return new Response(compact('success'), $error);
+        $response = $deleteAction->execute($id);
+        return $presenter->delete($response);
     }
 }
