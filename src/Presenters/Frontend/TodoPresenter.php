@@ -5,43 +5,33 @@ namespace App\Presenters\Frontend;
 use App\Controllers\TodoController;
 use Illuminate\Http\Request;
 use App\Entities\Todo;
-
+use App\Util\Response;
+use Twig_Environment;
 
 class TodoPresenter {
-    public function __construct()
+    public function __construct(Twig_Environment $twig)
     {
-        $container = DIContainer::getInstance();
-        $this->twig = $container->get('Twig');
+        $this->twig = $twig;
     }
 
-    public function index()
+    public function index(Response $response)
     {
-        // return (new TodoController)->index()->toJSON();
-        return $this->twig->load('index.html')->render();
+        return $this->twig->load('index.html')->render(compact('response'));
     }
 
-    public function show($id)
+    public function show(Response $response)
     {
-        return (new TodoController)->show($id)->toJSON();
+        return $this->twig->load('show.html')->render(compact('response'));
     }
 
-    public function store(Request $request)
+    public function create()
     {
-        $todo = new Todo;
-        $todo->fill($request->input());
-        return (new TodoController)->store($todo)->toJSON();
+        return $this->twig->load('create.html')->render();
     }
 
-    public function update(Request $request, $id)
+    public function edit(Response $response)
     {
-        $todo = new Todo;
-        $todo->fill($request->input());
-        return (new TodoController)->update($id, $todo)->toJSON();
-    }
-
-    public function delete($id)
-    {
-        return (new TodoController)->delete($id)->toJSON();
+        return $this->twig->load('edit.html')->render(compact('response'));
     }
 
 }

@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Edit Page</title>
+</head>
+<body>
+    <form action="/todos/{{response.data.todo.id}}" method="post">
+        <input type="hidden" name="_method" value="PUT">
+        <label>Editing Todo {{response.data.todo.id}}</label><br />
+        <input type="text" name="description" value="{{response.data.todo.description}}">
+        <button>Submit</button>
+    </form>
+</body>
+</html>

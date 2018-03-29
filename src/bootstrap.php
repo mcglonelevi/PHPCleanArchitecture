@@ -29,6 +29,7 @@ $redirect = new Redirector(new UrlGenerator($router->getRoutes(), $request));
  * Setup Dependency Injection
  */
 $container->instance('Illuminate\Http\Request', $request);
+$container->instance('Illuminate\Routing\Redirector', $redirect);
 
 $container->instance('Illuminate\Container\Container', $container);
 
@@ -46,7 +47,7 @@ $container->singleton('TodoRepository', function ($container) {
     return new TodoRepository($container->make('Medoo\Medoo'));
 });
 
-$container->singleton('Twig', function ($container) {
+$container->singleton('Twig_Environment', function ($container) {
     $loader = new Twig_Loader_Filesystem('Templates');
     $twig = new Twig_Environment($loader, []);
     return $twig;
